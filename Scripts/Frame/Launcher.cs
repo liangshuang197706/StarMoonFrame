@@ -30,23 +30,12 @@ namespace SMF
         /// <returns></returns>
         IEnumerator InitGame()
         {
-            bool success = true;
-            LogUtil.SampleLog("====== S M F 框架启动中 ======");
-            yield return new WaitForSeconds(0.5f);
+            // 检查根路径是否存在
+            bool success = PathManager.CheckPath();
+            if(success) LogUtil.Success("====== 资源根路径 ======");
+            else LogUtil.Danger("====== 资源根路径无效或缺失！    ======");
 
-            #region 配置管理模块
-            GameObject config = new GameObject(typeof(ConfigManager).Name);
-            config.AddComponent<ConfigManager>();
-            if (config.GetComponent<ConfigManager>())
-            {
-                LogUtil.Success("====== Init ConfigManager    ======");
-            }
-            else
-            {
-                LogUtil.Danger("====== ConfigManager 模块缺失    ======");
-                success = false;
-            }
-            #endregion
+            LogUtil.SampleLog("====== S M F 框架启动中 ======");
             yield return new WaitForSeconds(0.1f);
 
             #region 资源管理模块
@@ -59,6 +48,21 @@ namespace SMF
             else
             {
                 LogUtil.Danger("====== ResManager 模块缺失    ======");
+                success = false;
+            }
+            #endregion
+            yield return new WaitForSeconds(0.1f);
+
+            #region 配置管理模块
+            GameObject config = new GameObject(typeof(ConfigManager).Name);
+            config.AddComponent<ConfigManager>();
+            if (config.GetComponent<ConfigManager>())
+            {
+                LogUtil.Success("====== Init ConfigManager    ======");
+            }
+            else
+            {
+                LogUtil.Danger("====== ConfigManager 模块缺失    ======");
                 success = false;
             }
             #endregion
@@ -113,8 +117,8 @@ namespace SMF
             if (net!= NetManager.NetEnum.None)
             {
                 GameObject nm = new GameObject(typeof(NetManager).Name);
-                nm.AddComponent<GameManager>();
-                if (nm.GetComponent<GameManager>())
+                nm.AddComponent<NetManager>();
+                if (nm.GetComponent<NetManager>())
                 {
                     LogUtil.Success("====== Init NetManager ======");
                 }
@@ -131,7 +135,7 @@ namespace SMF
             #endregion
             yield return new WaitForSeconds(0.1f);
 
-            // 模块启动检查
+            // 模块启动检查 检查有无启动失败的模块
             if (success)
             {
                 bool check = false;
